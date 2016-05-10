@@ -2,6 +2,9 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
-	<classpathentry kind="lib" path="C:/Program Files/Weka-3-6/weka.jar"/>
+	<classpathentry kind="lib" path="resources/weka.jar"/>
+	<classpathentry kind="lib" path="resources/gridSearch.jar"/>
+	<classpathentry kind="lib" path="resources/attributeSelectionSearchMethods.jar"/>
+	<classpathentry kind="lib" path="resources/multisearch-weka-package-2016.4.31-SNAPSHOT.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
