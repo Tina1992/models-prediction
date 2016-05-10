@@ -7,6 +7,8 @@ import weka.core.OptionHandler;
 public abstract class AbsWekaClusterer extends AbsWekaModeler {
 	protected Clusterer clusterer_;
 	
+	//--Public methods
+	
 	public AbsWekaClusterer(Clusterer clusterer){
 		super((OptionHandler) clusterer);
 		clusterer_=clusterer;
@@ -28,6 +30,8 @@ public abstract class AbsWekaClusterer extends AbsWekaModeler {
 	public Clusterer getClusterer(){
 		return clusterer_;
 	}
+	
+	//--Abstract methods
 
 	protected abstract void getClusterer(Instances instances);
 	

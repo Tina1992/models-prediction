@@ -1,0 +1,104 @@
+package optimization;
+
+import java.util.Random;
+import java.util.Vector;
+
+import models.AbsModeler;
+import models.AbsWekaClusterer;
+import parameters.AbsParameter;
+import parameters.AbsWekaParameter;
+import weka.clusterers.SimpleKMeans;
+import weka.core.Instance;
+import weka.core.Instances;
+import weka.core.OptionHandler;
+
+public class WekaClustererOptimizer extends AbsWekaSimpleOptimizer {
+
+	private static final long SEED = 10;
+
+	@Override
+	protected void optimiceDoubleParams(AbsModeler modeler, Instances isTrainingSet) throws Exception {		
+		double maxAv = Double.MAX_VALUE;
+		int finalk=0;
+		OptionHandler oh=((AbsWekaClusterer)modeler).getOptionHandler();
+		Vector<AbsParameter> parameters=modeler.getParameters();
+		((SimpleKMeans)oh).setPreserveInstancesOrder(true);
+		for (AbsParameter p:parameters){
+			Random rand = new Random(SEED); 
+			Instances randData = new Instances(isTrainingSet); 
+			range thisrange=getRange(p.getName());										
+			randData.randomize(rand); 
+			SimpleKMeans tester=new SimpleKMeans();
+			for (int k = (int) thisrange.min; k < thisrange.max; k+=DEFAULT_INTEGER_STEP) {
+				double error = 0;
+				double s = 0.0;
+				for (int n = 0; n < k; n++) {
+					Instances train = randData.trainCV(k, n);
+					Instances test = randData.testCV(k, n);
+					tester.setPreserveInstancesOrder(true);
+					tester.setNumClusters(k);
+					tester.buildClusterer(train);
+					for (int i = 0; i < test.numInstances(); i++) {
+						s += s(tester, test.instance(i), train);
+					}
+					error += tester.getSquaredError()/test.numInstances();
+				}
+				s = s/k;
+				error = error/k;
+				if (((error - s) > 0) && (error - s) < maxAv) {
+					maxAv = error-s;
+					finalk = k;
+				}
+			}
+			System.out.println(finalk);
+			((AbsWekaParameter) p).setValue(finalk);
+			p.modifyModel(modeler);
+		}
+		
+	}
+	
+	private double s(SimpleKMeans knn, Instance i, Instances is) throws Exception {
+		double a = a(knn, i, is);
+		double b = b(knn, i, is);
+		if (a == b)
+			return 0.0;
+		if (a < b)
+			return 1 - (a / b);
+		return (b / a) - 1;
+	}
+
+	private double b(SimpleKMeans knn, Instance i, Instances is) throws Exception {
+		// TODO Auto-generated method stub
+		int[] ass = knn.getAssignments();
+		int cluster = knn.clusterInstance(i);
+		double minDist = Double.MAX_VALUE;
+		for (int j = 0; j < ass.length; j++) {
+			if (ass[j] != cluster) {
+				double dist = knn.getDistanceFunction().distance(i, is.instance(j));
+				if (dist < minDist) {
+					minDist = dist;
+				}
+			}
+
+		}
+		return minDist;
+	}
+
+	private double a(SimpleKMeans knn, Instance i, Instances is) throws Exception {
+		// TODO Auto-generated method stub
+		int[] ass = knn.getAssignments();
+		int cluster = knn.clusterInstance(i);
+		double maxDist = 0;
+		for (int j = 0; j < ass.length; j++) {
+			if (ass[j] == cluster) {
+				double dist = knn.getDistanceFunction().distance(i, is.instance(j));
+				if (dist > maxDist) {
+					maxDist = dist;
+				}
+			}
+
+		}
+		return maxDist;
+	}
+
+}

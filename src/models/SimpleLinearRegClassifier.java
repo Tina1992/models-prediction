@@ -24,16 +24,10 @@ public class SimpleLinearRegClassifier extends AbsWekaClassifier {
 	}
 
 	@Override
-	public Classifier[] bestClassifiers(Instances dataset) throws Exception {
+	public Classifier[] getOptions(Instances dataset) throws Exception {
 		// TODO Auto-generated method stub
 		Classifier[] c= {this.classifier};
 		return c ;
-	}
-	
-	@Override
-	public String globalInfo() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 }

@@ -8,7 +8,6 @@ import java.util.Vector;
 
 import models.AbsWekaClassifier;
 import weka.attributeSelection.CfsSubsetEval;
-import weka.attributeSelection.ExhaustiveSearch;
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
 import weka.classifiers.functions.LinearRegression;
