@@ -3,12 +3,13 @@ package optimization;
 import java.util.Vector;
 
 import models.AbsModeler;
+import models.AbsWekaClassifier;
 import models.SMOregClassifier;
 import parameters.AbsParameter;
 import parameters.AbsWekaParameter;
 import parameters.WekaKernelParameter;
 import parameters.WekaSimpleParameter;
-import weka.classifiers.Classifier;
+import weka.classifiers.AbstractClassifier;
 import weka.classifiers.functions.SMOreg;
 import weka.classifiers.functions.supportVector.NormalizedPolyKernel;
 import weka.classifiers.functions.supportVector.PolyKernel;
@@ -25,13 +26,9 @@ import weka.core.setupgenerator.MathParameter;
 
 public class WekaKernelOptimizer extends AbsWekaOptimizer {
 
-	private Classifier[] bestClassifiers(AbsModeler modeler, Instances dataset) throws Exception {
-		MultiSearch ms = new MultiSearch();
-		SMOreg smoreg = new SMOreg();
+	private Vector<WekaKernelParameter> kernels = new Vector<WekaKernelParameter>();
 
-		ms.setEvaluation(new SelectedTag(GridSearch.EVALUATION_CC, GridSearch.TAGS_EVALUATION));
-
-		// KERNEL:
+	public void setKernelOptions() {
 		NormalizedPolyKernel npk = new NormalizedPolyKernel(); // exponent (-E)
 		PolyKernel pk = new PolyKernel(); // exponent (-E)
 		Puk p = new Puk(); // omega (-O) - sigma (-S)
@@ -50,25 +47,35 @@ public class WekaKernelOptimizer extends AbsWekaOptimizer {
 		Vector<AbsWekaParameter> rbfkparams = new Vector<AbsWekaParameter>();
 		rbfkparams.add(new WekaSimpleParameter('G', 1, "gamma"));
 
-		npkparam.setKernelParams(exponents);
-		pkparam.setKernelParams(exponents);
-		pukparam.setKernelParams(pukparams);
-		rbfkparam.setKernelParams(rbfkparams);
+		npkparam.setKernelOptions(exponents);
+		pkparam.setKernelOptions(exponents);
+		pukparam.setKernelOptions(pukparams);
+		rbfkparam.setKernelOptions(rbfkparams);
 
-		Vector<WekaKernelParameter> kernels = new Vector<WekaKernelParameter>();
 		kernels.add(npkparam);
 		kernels.add(rbfkparam);
 		kernels.add(pkparam);
 		kernels.add(pukparam);
 
+	}
+
+	private AbstractClassifier[] bestClassifiers(AbsModeler modeler, Instances dataset) throws Exception {
+		MultiSearch ms = new MultiSearch();
+		SMOreg smoreg = new SMOreg();
+
+		ms.setEvaluation(new SelectedTag(GridSearch.EVALUATION_CC, GridSearch.TAGS_EVALUATION));
+
+		setKernelOptions();
+
 		AbstractParameter[] lpparam = new AbstractParameter[modeler.getParameters().size() - 1];
 		int index = 0;
-		Classifier[] cls = new Classifier[kernels.size()];
+		AbstractClassifier[] cls = new AbstractClassifier[kernels.size()];
 		for (AbsParameter param : modeler.getParameters()) {
 			if (!param.getClass().getName().contains("Kernel")) {
 				lpparam[index] = new MathParameter();
-				lpparam[index].setOptions(Utils.splitOptions("-property " + ((AbsWekaParameter) param).getCharOp()
-						+ " -min 0.0 -max 5.0 -step 1.0 -base 10.0 -expression I"));
+				lpparam[index].setOptions(
+						Utils.splitOptions("-property " + ((AbsWekaParameter) param).getParameterString().charAt(1)
+								+ " -min 0.0 -max 5.0 -step 1.0 -base 10.0 -expression I"));
 				index++;
 			}
 		}
@@ -94,7 +101,7 @@ public class WekaKernelOptimizer extends AbsWekaOptimizer {
 			ms.setClassifier(smoreg);
 
 			ms.buildClassifier(dataset);
-			cls[kindex] = ms.getBestClassifier();
+			cls[kindex] = (AbstractClassifier) ms.getBestClassifier();
 			kindex++;
 
 		}
@@ -106,12 +113,12 @@ public class WekaKernelOptimizer extends AbsWekaOptimizer {
 		// TODO Auto-generated method stub
 		try {
 			MultiScheme ms = new MultiScheme();
-			Classifier[] optclassifiers = bestClassifiers(modeler, isTrainingSet);
+			AbstractClassifier[] optclassifiers = bestClassifiers(modeler, isTrainingSet);
 			ms.setClassifiers(optclassifiers);
 			ms.buildClassifier(isTrainingSet);
 			((SMOregClassifier) modeler).setClassifier(optclassifiers[ms.getBestClassifierIndex()]);
-			System.out.println(ms.getBestClassifierIndex());
-			System.out.println("//////////////////////////////////////////////////////");
+			((AbsWekaClassifier) modeler)
+					.parseOptions(((SMOreg) (optclassifiers[ms.getBestClassifierIndex()])).getOptions());
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

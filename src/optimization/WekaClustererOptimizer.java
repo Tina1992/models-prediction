@@ -6,18 +6,19 @@ import java.util.Vector;
 import models.AbsModeler;
 import models.AbsWekaClusterer;
 import parameters.AbsParameter;
-import parameters.AbsWekaParameter;
+import parameters.WekaSimpleParameter;
 import weka.clusterers.SimpleKMeans;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.OptionHandler;
 
-public class WekaClustererOptimizer extends AbsWekaSimpleOptimizer {
+public class WekaClustererOptimizer extends AbsWekaOptimizer {
 
 	private static final long SEED = 10;
+	private static final int DEFAULT_CLUSTER_STEPS = 20;
 
 	@Override
-	protected void optimiceDoubleParams(AbsModeler modeler, Instances isTrainingSet) throws Exception {		
+	protected void optimiceParams(AbsModeler modeler, Instances isTrainingSet){		
 		double maxAv = Double.MAX_VALUE;
 		int finalk=0;
 		OptionHandler oh=((AbsWekaClusterer)modeler).getOptionHandler();
@@ -25,23 +26,28 @@ public class WekaClustererOptimizer extends AbsWekaSimpleOptimizer {
 		((SimpleKMeans)oh).setPreserveInstancesOrder(true);
 		for (AbsParameter p:parameters){
 			Random rand = new Random(SEED); 
-			Instances randData = new Instances(isTrainingSet); 
-			range thisrange=getRange(p.getName());										
+			Instances randData = new Instances(isTrainingSet); 										
 			randData.randomize(rand); 
 			SimpleKMeans tester=new SimpleKMeans();
-			for (int k = (int) thisrange.min; k < thisrange.max; k+=DEFAULT_INTEGER_STEP) {
+			Double max=new Double(((WekaSimpleParameter)p).getValue());
+			for (int k = (int) ((WekaSimpleParameter)p).getMinValor(); k < max.intValue()+DEFAULT_CLUSTER_STEPS ; k++) {
 				double error = 0;
 				double s = 0.0;
 				for (int n = 0; n < k; n++) {
 					Instances train = randData.trainCV(k, n);
 					Instances test = randData.testCV(k, n);
 					tester.setPreserveInstancesOrder(true);
-					tester.setNumClusters(k);
-					tester.buildClusterer(train);
-					for (int i = 0; i < test.numInstances(); i++) {
-						s += s(tester, test.instance(i), train);
+					try {
+						tester.setNumClusters(k);
+						tester.buildClusterer(train);
+						for (int i = 0; i < test.numInstances(); i++) {
+							s += s(tester, test.instance(i), train);
+						}
+						error += tester.getSquaredError()/test.numInstances();
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
 					}
-					error += tester.getSquaredError()/test.numInstances();
 				}
 				s = s/k;
 				error = error/k;
@@ -51,7 +57,7 @@ public class WekaClustererOptimizer extends AbsWekaSimpleOptimizer {
 				}
 			}
 			System.out.println(finalk);
-			((AbsWekaParameter) p).setValue(finalk);
+			((WekaSimpleParameter) p).setValue(finalk);
 			p.modifyModel(modeler);
 		}
 		

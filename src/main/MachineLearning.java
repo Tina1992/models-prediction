@@ -1,4 +1,4 @@
-package main;
+/*package main;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -55,7 +55,7 @@ public class MachineLearning {
 		Vector<Integer> nomAtts = new Vector<Integer>();
 		for(int att=0; att<numAtts; att++){
 			if(dataset.attribute(att).isNominal())
-				nomAtts.add(0,att);
+				nomAtts.add(att);
 		}
 		
 		for(int at:nomAtts){
@@ -147,7 +147,6 @@ public class MachineLearning {
 		 * For K-fold, you break the data into K-blocks. Then, for K = 1 to X, you make the Kth block the test block 
 		 * and the rest of the data becomes the training data. Train, test, record and then update K. In this case, 
 		 * the standard value for K is 10.
-		 */
 		eTest.crossValidateModel(lr, trainingSet, 10, null, new Random(1));
 		
 		
@@ -168,3 +167,4 @@ public class MachineLearning {
 	
 	
 }
+*/

@@ -1,8 +1,7 @@
 package models;
 
-import weka.classifiers.Classifier;
+import optimization.WekaClassifierOptimizer;
 import weka.classifiers.functions.SimpleLinearRegression;
-import weka.core.Instances;
 
 public class SimpleLinearRegClassifier extends AbsWekaClassifier {
 	/*
@@ -12,22 +11,15 @@ public class SimpleLinearRegClassifier extends AbsWekaClassifier {
 	 * Predicted attribute: A
 	 * Function on B (attributeIndex): A = Slope * B + Intercept 	A y B high correlation 
 	 */
-
+	/**/
 	public SimpleLinearRegClassifier(int index){
-		super(new SimpleLinearRegression(), index);
+		super(new SimpleLinearRegression(), new WekaClassifierOptimizer(), index);
 	}
 	
 	@Override
 	public String getName() {
 		// TODO Auto-generated method stub
 		return "SimpleLinearRegression";
-	}
-
-	@Override
-	public Classifier[] getOptions(Instances dataset) throws Exception {
-		// TODO Auto-generated method stub
-		Classifier[] c= {this.classifier};
-		return c ;
 	}
 
 }

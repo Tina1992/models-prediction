@@ -1,18 +1,16 @@
 package models;
 
-import parameters.AbsParameter;
-import parameters.AbsWekaParameter;
-import parameters.WekaSimpleParameter;
+import optimization.AbsWekaOptimizer;
 import weka.attributeSelection.CfsSubsetEval;
 import weka.attributeSelection.ExhaustiveSearch;
+import weka.classifiers.AbstractClassifier;
 import weka.classifiers.Classifier;
 import weka.classifiers.meta.AttributeSelectedClassifier;
-import weka.classifiers.meta.MultiScheme;
 import weka.core.Instances;
-import weka.core.OptionHandler;
 
 public abstract class AbsWekaClassifier extends AbsWekaModeler{
-	protected Classifier classifier;
+	protected AbstractClassifier classifier;
+	protected AbsWekaOptimizer optimizer;
 	private int index;
 	
 	//--Private methods
@@ -28,15 +26,17 @@ public abstract class AbsWekaClassifier extends AbsWekaModeler{
 	}
 	
 	//--Public methods
-	
-	public AbsWekaClassifier(Classifier clas, int index){
-		super((OptionHandler) clas);
+	/**/
+	public AbsWekaClassifier(AbstractClassifier clas, AbsWekaOptimizer optimizer, int index){
+		super(clas);
 		this.index=index;
-		this.classifier=clas;
+		classifier=clas;
+		this.optimizer=optimizer;
 	}
-	
-	public void setClassifier(Classifier classifier){
+
+	public void setClassifier(AbstractClassifier classifier){
 		this.classifier=classifier;
+		parseOptions(classifier.getOptions());
 	}
 
 	public String toString(){
@@ -46,27 +46,12 @@ public abstract class AbsWekaClassifier extends AbsWekaModeler{
 	public Classifier getClassifier(){
 		return classifier;
 	}
-	
-	public Classifier optimizingParams(Instances dataset) throws Exception{
-		Classifier[] bestclasifiers = getOptions(dataset);
-		int index=0;
-		Classifier[] optclassifiers = new Classifier[bestclasifiers.length];
-		for(Classifier bc: bestclasifiers){
-			optclassifiers[index] = performAttSelect(bc,dataset);
-			index++;
-		}
-		//determinate the best classifier  
-		MultiScheme ms = new MultiScheme();
-		ms.setClassifiers(optclassifiers);
-		ms.buildClassifier(dataset);
-			    
-		return optclassifiers[ms.getBestClassifierIndex()];
-	}
 
 	public AbsModeler getModeler(Instances dataset){
 		dataset.setClassIndex(index);
+		optimizer.optimiceParams(this);
 		try {
-			classifier=optimizingParams(dataset);
+			classifier.buildClassifier(dataset);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -74,22 +59,6 @@ public abstract class AbsWekaClassifier extends AbsWekaModeler{
 		return this;
 	}
 	
-	public void parseOptions(String[] options){
-		int index=0;
-		for (index=0;index<options.length;index=index+2){
-			try{
-			if (!options[index].isEmpty()&&(options[index].length()==2)){
-				AbsParameter p=getParameter(options[index].charAt(1));
-				((AbsWekaParameter)p).setValue(Double.valueOf(options[index+1]));
-			}}
-			catch  (Exception e){
-				System.err.println("Error de parametro");
-			}
-		}
-		
-	}
-	
 	//--Abstract methods
 	public abstract String getName();
-	public abstract Classifier[] getOptions(Instances dataset) throws Exception;
 }

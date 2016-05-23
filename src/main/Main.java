@@ -2,7 +2,6 @@ package main;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Random;
 import java.util.Vector;
 
 import models.AbsModeler;
@@ -11,23 +10,16 @@ import models.MultilayerPerceptronClassifier;
 import models.SMOregClassifier;
 import models.SimpleKClusterer;
 import models.SimpleLinearRegClassifier;
-import optimization.WekaClustererOptimizer;
-import weka.clusterers.FilteredClusterer;
-import weka.clusterers.SimpleKMeans;
-import weka.core.Instance;
-import weka.core.Instances;
-import weka.core.converters.CSVLoader;
 
 public class Main {
 	
+	@SuppressWarnings("unused")
 	public static void main(String[] args) throws IOException{
 		Vector<AbsModeler> models=new Vector<AbsModeler>();
 		
 		File database=new File("C:\\Users\\Tina\\Desktop\\test.csv");
-		
 
 		SimpleKClusterer skc=new SimpleKClusterer();
-		//clustereropt.optimiceParams(skc, database);
 		
 		int index=10;
 		
@@ -37,7 +29,7 @@ public class Main {
 		SMOregClassifier smoreg=new SMOregClassifier(index);								//Vector
 		
 
-		//models.add(skc);
+		models.add(skc);
 		models.add(lrc);
 		models.add(mpc);
 		models.add(slrgc);

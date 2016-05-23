@@ -10,7 +10,7 @@ public abstract class AbsModeler {
 	protected Vector<AbsParameter> modelParameters_=new Vector<AbsParameter>();
 	
 	//--Public methods
-	
+	/**/
 	public void addParameter(AbsParameter modelParameter){
 		for (AbsParameter ap:modelParameters_){
 			if (ap.getName().equals(modelParameter.getName())){

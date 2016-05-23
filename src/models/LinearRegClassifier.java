@@ -2,11 +2,7 @@ package models;
 
 import optimization.WekaClassifierOptimizer;
 import parameters.WekaSimpleParameter;
-import weka.classifiers.Classifier;
 import weka.classifiers.functions.LinearRegression;
-import weka.core.Instances;
-import weka.core.SelectedTag;
-import weka.core.Tag;
 
 public class LinearRegClassifier extends AbsWekaClassifier {
 	/*
@@ -16,29 +12,15 @@ public class LinearRegClassifier extends AbsWekaClassifier {
 	 */
 
 	private static final double DEFAULT_RIDGE = 0.5;
-
+	/**/
 	public LinearRegClassifier(int index) {
-		super(new LinearRegression(), index);
-		addParameter(new WekaSimpleParameter('R', DEFAULT_RIDGE, "R"));
+		super(new LinearRegression(), new WekaClassifierOptimizer(), index);
+		addParameter(new WekaSimpleParameter('R', DEFAULT_RIDGE, "R"));	/*No tiene limites - Double*/
 	}
 
 	@Override
 	public String getName() {
 		// TODO Auto-generated method stub
 		return "LinearRegression";
-	}
-
-	@Override
-	public Classifier[] getOptions(Instances dataset) throws Exception {
-		WekaClassifierOptimizer wco = new WekaClassifierOptimizer();
-		Tag[] methods = LinearRegression.TAGS_SELECTION;
-		Classifier[] cls = new Classifier[methods.length];
-		((LinearRegression) this.classifier).setEliminateColinearAttributes(true);
-		for (int i = 0; i < methods.length; i++) {
-			((LinearRegression) this.classifier).setAttributeSelectionMethod(new SelectedTag(i, methods));
-			wco.optimiceParams(this);
-			cls[i] = this.classifier;
-		}
-		return cls;
 	}
 }

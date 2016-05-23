@@ -6,38 +6,51 @@ import models.AbsModeler;
 import models.AbsWekaClassifier;
 import models.AbsWekaModeler;
 import parameters.AbsParameter;
-import parameters.AbsWekaParameter;
-import weka.classifiers.Classifier;
+import parameters.WekaSimpleParameter;
+import weka.classifiers.AbstractClassifier;
 import weka.classifiers.meta.CVParameterSelection;
 import weka.core.Instances;
-import weka.core.OptionHandler;
 
-public class WekaClassifierOptimizer extends AbsWekaSimpleOptimizer {
+public class WekaClassifierOptimizer extends AbsWekaOptimizer {
 
 	private static final int FOLDS = 5;
+	private static final double DEFAULT_CLASSIFIER_STEPS = 5;
 
 	@Override
-	protected void optimiceDoubleParams(AbsModeler modeler, Instances isTrainingSet) throws Exception {
+	protected void optimiceParams(AbsModeler modeler, Instances isTrainingSet) {
 		// TODO Auto-generated method stub
-		
-		Vector<AbsParameter> parameters=modeler.getParameters();
-		CVParameterSelection cvps = new CVParameterSelection();
-		
-		for (AbsParameter p: parameters){
-			range r=getRange(p.getName());
-			Double step=DEFAULT_DOUBLE_STEP;
-			if (r.min%1==0){
-				step = DEFAULT_INTEGER_STEP;
+		try {
+			Vector<AbsParameter> parameters = modeler.getParameters();
+			CVParameterSelection cvps = new CVParameterSelection();
+
+			for (AbsParameter p : parameters) {
+				WekaSimpleParameter wsp = (WekaSimpleParameter) p;
+				String val = new String();
+				double max;
+				if (wsp.getMaxValue() == -1) {
+					max = wsp.getMinValor() + DEFAULT_CLASSIFIER_STEPS;
+				} else {
+					max = wsp.getMaxValue();
+				}
+				double d = wsp.getValue() % 1;
+				if (d == 0) {
+					Double minInt = new Double(wsp.getMinValor());
+					Double maxInt = new Double(max);
+					val = wsp.getParameterString().charAt(1) + " " + minInt.intValue() + " " + maxInt.intValue() + " "
+							+ 5;
+				} else {
+					val = wsp.getParameterString().charAt(1) + " " + wsp.getMinValor() + " " + max + " "
+							+ DEFAULT_CLASSIFIER_STEPS;
+				}
+				cvps.addCVParameter(val);
 			}
-			String val=((AbsWekaParameter) p).getParameterString()[0].charAt(1)+" "+r.min+" "+r.max+" "+step;
-			cvps.addCVParameter(val.toUpperCase());
+			cvps.setNumFolds(FOLDS);
+			cvps.setClassifier((AbstractClassifier) ((AbsWekaModeler) modeler).getOptionHandler());
+			cvps.buildClassifier(isTrainingSet);
+			((AbsWekaClassifier) modeler).parseOptions(cvps.getBestClassifierOptions());
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		cvps.setNumFolds(FOLDS);
-		cvps.setClassifier((Classifier) ((AbsWekaModeler)modeler).getOptionHandler());
-		cvps.buildClassifier(isTrainingSet);
-		Classifier clas=(Classifier) ((AbsWekaModeler)modeler).getOptionHandler();
-		((OptionHandler)clas).setOptions(cvps.getBestClassifierOptions());
-		((AbsWekaClassifier)modeler).parseOptions(cvps.getBestClassifierOptions());
 	}
 
 }

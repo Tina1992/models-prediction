@@ -4,42 +4,26 @@ import models.AbsModeler;
 import weka.core.OptionHandler;
 import weka.core.Utils;
 
-public abstract class AbsWekaParameter extends AbsParameter{
-	
-	protected char charOp_;
-	protected Object value_;
-	
-	public AbsWekaParameter(char charOp, Object value,String name){
-		charOp_=charOp;
-		value_=value;
-		name_=name;
+public abstract class AbsWekaParameter extends AbsParameter {
+
+	public AbsWekaParameter(String name) {
+		super(name);
+		// TODO Auto-generated constructor stub
 	}
-	
-	public char getCharOp(){
-		return charOp_;
+	/**/
+	protected void modifyObject(OptionHandler oh) throws Exception {
+		String[] currOptions = oh.getOptions();
+		String[] newOptions = Utils.splitOptions(this.getParameterString());
+		for (int i=0;i<currOptions.length;i++){
+			if (newOptions[0].equals(currOptions[i])){
+				currOptions[i+1]=newOptions[1];
+			}
+		}
+		oh.setOptions(currOptions);
 	}
-	
-	public Object getValue(){
-		return value_;
-	}
-	
-	public void setValue(Object value){
-		value_=value;
-	}
-	
-	public String[] getParameterString() throws Exception{
-		return Utils.splitOptions("-"+charOp_+" "+value_.toString());
-	}
-	
-	protected void modifyObject(OptionHandler oh) throws Exception{
-		oh.setOptions(this.getParameterString());
-	}
-	
-	public void parseOptions(String options){
-		charOp_=options.charAt(0);
-		value_=options.split(" ")[1];
-	}
-	
+
 	public abstract void modifyModel(AbsModeler modeler);
+
+	public abstract String getParameterString() throws Exception;
 
 }

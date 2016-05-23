@@ -8,10 +8,12 @@ import weka.core.Instances;
 public class SimpleKClusterer extends AbsWekaClusterer {
 	
 	private static final double DEFAULT_N = 30;
-
+	/**/
 	public SimpleKClusterer(){
 		super(new SimpleKMeans());
-		addParameter(new WekaSimpleParameter('N', DEFAULT_N, "Clusters Number"));
+		WekaSimpleParameter n=new WekaSimpleParameter('N', DEFAULT_N, "Clusters Number");
+		n.setMinValor(2);
+		addParameter(n);
 	}
 
 	@Override
