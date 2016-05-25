@@ -1,6 +1,5 @@
 package optimization;
 
-
 import models.AbsModeler;
 
 public abstract class AbsOptimizer {

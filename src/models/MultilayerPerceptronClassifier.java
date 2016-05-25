@@ -21,7 +21,7 @@ public class MultilayerPerceptronClassifier extends AbsWekaClassifier {
 
 	/**/
 	public MultilayerPerceptronClassifier(int index) {
-		super(new MultilayerPerceptron(), new WekaClassifierOptimizer(), index);
+		super(new MultilayerPerceptron(), new WekaClassifierOptimizer(2,5), index);
 		WekaSimpleParameter l = new WekaSimpleParameter('L', DEFAULT_LR, "L"/* "Learning Rate" */);
 		l.setMaxValue(1);
 		addParameter(l); /* 0-1 Double */

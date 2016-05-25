@@ -1,5 +1,7 @@
 package parameters;
 
+import java.util.Vector;
+
 import models.AbsModeler;
 import models.AbsWekaModeler;
 import weka.core.OptionHandler;
@@ -8,7 +10,7 @@ public class WekaSimpleParameter extends AbsWekaParameter {
 
 	private char charOp_;
 	private double value_;
-	private float minValue = 0;
+	private float minValue = 0;			//Para eliminar el limite minimo, setear esto a -1
 	private float maxValue = -1;		//No tiene limite
 
 	public WekaSimpleParameter(char charOp, Object value, String name) {
@@ -65,6 +67,47 @@ public class WekaSimpleParameter extends AbsWekaParameter {
 			return "-" + String.valueOf(charOp_).toUpperCase() + " " + String.valueOf(val.intValue());
 		}
 		return "-" + String.valueOf(charOp_).toUpperCase() + " " + String.valueOf(value_);
+	}
+
+	@Override
+	public Vector<String> getPropertyString(double min, double max) {
+		// TODO Auto-generated method stub
+		Vector<String> r=new Vector<>();
+		r.addElement("-property " + charOp_ + " -min "+min+" -max "+max+" -step 1.0 -base 10.0 -expression I");
+		return r;
+	}
+
+	@Override
+	public int getSimpleParametersCount() {
+		// TODO Auto-generated method stub
+		return 1;
+	}
+
+	@Override
+	public double getFirstValue(double min) {
+		// TODO Auto-generated method stub
+		if (getMinValor() == -1) { // No tiene limite mínimo
+			return min;
+		} else {
+			if (min < getMinValor())
+				return getMinValor();
+		}
+		return min;
+	}
+
+	@Override
+	public double getLastValue(double max) {
+		// TODO Auto-generated method stub
+		if (getMaxValue() == -1) { // No tiene limite maximo
+			if (max==-1)
+				return 0;
+			else
+				return max;
+		} else {
+			if (max > getMaxValue())
+				return getMaxValue();
+		}
+		return max;
 	}
 
 }

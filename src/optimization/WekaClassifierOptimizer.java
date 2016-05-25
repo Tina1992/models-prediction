@@ -15,9 +15,14 @@ public class WekaClassifierOptimizer extends AbsWekaOptimizer {
 
 	private static final int FOLDS = 5;
 	private static final double DEFAULT_CLASSIFIER_STEPS = 5;
+	
+	public WekaClassifierOptimizer(double min, double max){
+		minValue=min;
+		maxValue=max;
+	}
 
 	@Override
-	protected void optimiceParams(AbsModeler modeler, Instances isTrainingSet) {
+	public void optimiceParams(AbsModeler modeler, Instances isTrainingSet) {
 		// TODO Auto-generated method stub
 		try {
 			Vector<AbsParameter> parameters = modeler.getParameters();
@@ -26,18 +31,14 @@ public class WekaClassifierOptimizer extends AbsWekaOptimizer {
 			for (AbsParameter p : parameters) {
 				WekaSimpleParameter wsp = (WekaSimpleParameter) p;
 				String val = new String();
-				double max;
-				if (wsp.getMaxValue() == -1) {
-					max = wsp.getMinValor() + DEFAULT_CLASSIFIER_STEPS;
-				} else {
-					max = wsp.getMaxValue();
-				}
+				double max=wsp.getLastValue(maxValue);
+				double min=wsp.getFirstValue(minValue);
 				double d = wsp.getValue() % 1;
 				if (d == 0) {
-					Double minInt = new Double(wsp.getMinValor());
+					Double minInt = new Double(min);
 					Double maxInt = new Double(max);
 					val = wsp.getParameterString().charAt(1) + " " + minInt.intValue() + " " + maxInt.intValue() + " "
-							+ 5;
+							+ DEFAULT_CLASSIFIER_STEPS;
 				} else {
 					val = wsp.getParameterString().charAt(1) + " " + wsp.getMinValor() + " " + max + " "
 							+ DEFAULT_CLASSIFIER_STEPS;

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import parameters.AbsParameter;
+import parameters.AbsWekaParameter;
 import parameters.WekaSimpleParameter;
 import weka.core.Instances;
 import weka.core.OptionHandler;
@@ -72,4 +73,12 @@ public abstract class AbsWekaModeler extends AbsModeler {
 
 	protected abstract AbsModeler getModeler(Instances isTrainingSet);
 
+	public int getSimpleParamsCount(){
+		int i=0;
+		for (AbsParameter p: modelParameters_){
+			i+=((AbsWekaParameter)p).getSimpleParametersCount();
+		}
+		return i;
+	}
+	
 }

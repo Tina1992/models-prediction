@@ -11,10 +11,10 @@ public class LinearRegClassifier extends AbsWekaClassifier {
 	 * coefficients[att1] + ... for all i: coefficients[atti] != 0
 	 */
 
-	private static final double DEFAULT_RIDGE = 0.5;
+	private static final double DEFAULT_RIDGE = 1;
 	/**/
 	public LinearRegClassifier(int index) {
-		super(new LinearRegression(), new WekaClassifierOptimizer(), index);
+		super(new LinearRegression(), new WekaClassifierOptimizer(0, 5), index);
 		addParameter(new WekaSimpleParameter('R', DEFAULT_RIDGE, "R"));	/*No tiene limites - Double*/
 	}
 

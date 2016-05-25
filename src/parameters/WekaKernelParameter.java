@@ -105,6 +105,41 @@ public class WekaKernelParameter extends AbsWekaParameter {
 		}
 		return "-K \""+kernel_.getClass().toString()+" "+stringVal+"\"";
 	}
+
+	@Override
+	public Vector<String> getPropertyString(double min, double max) {
+		// TODO Auto-generated method stub
+		Vector<String> r=new Vector<String>();
+		for (AbsWekaParameter p:kernelOptions_){
+			double first=p.getFirstValue(min);
+			double last=p.getLastValue(max);
+			String ps=p.getPropertyString(first, last).firstElement().replaceAll("-property [A-Z]", "-property kernel."+p.getName());
+			r.add(ps);
+		}
+		return r;
+	}
+
+	@Override
+	public int getSimpleParametersCount() {
+		// TODO Auto-generated method stub
+		int i=0;
+		for (AbsWekaParameter p:kernelOptions_){
+			i+=p.getSimpleParametersCount();
+		}
+		return i;
+	}
+
+	@Override
+	public double getFirstValue(double min) {
+		// TODO Auto-generated method stub
+		return min;
+	}
+
+	@Override
+	public double getLastValue(double max) {
+		// TODO Auto-generated method stub
+		return max;
+	}
 	
 	
 	

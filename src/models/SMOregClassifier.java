@@ -13,9 +13,10 @@ public class SMOregClassifier extends AbsWekaClassifier {
 	private static final Kernel DEFAULT_KERNEL=new NormalizedPolyKernel();
 	/**/
 	public SMOregClassifier(int index){
-		super(new SMOreg(), new WekaKernelOptimizer(), index);
+		super(new SMOreg(), new WekaKernelOptimizer(0,5), index);
 		addParameter(new WekaSimpleParameter('C', DEFAULT_C, "C"/*"Complexy"*/));
 		WekaSimpleParameter exponent=new WekaSimpleParameter('E',DEFAULT_E,"E"/*"exponent"*/);
+		exponent.setMinValor(2);
 		WekaKernelParameter kernelParam = new WekaKernelParameter(DEFAULT_KERNEL);
 		kernelParam.addKernelOption(exponent);
 		addParameter(kernelParam);

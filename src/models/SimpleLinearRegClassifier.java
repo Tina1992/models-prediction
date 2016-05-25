@@ -13,7 +13,7 @@ public class SimpleLinearRegClassifier extends AbsWekaClassifier {
 	 */
 	/**/
 	public SimpleLinearRegClassifier(int index){
-		super(new SimpleLinearRegression(), new WekaClassifierOptimizer(), index);
+		super(new SimpleLinearRegression(), new WekaClassifierOptimizer(0,5), index);
 	}
 	
 	@Override

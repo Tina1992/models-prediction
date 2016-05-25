@@ -1,5 +1,7 @@
 package parameters;
 
+import java.util.Vector;
+
 import models.AbsModeler;
 import weka.core.OptionHandler;
 import weka.core.Utils;
@@ -25,5 +27,13 @@ public abstract class AbsWekaParameter extends AbsParameter {
 	public abstract void modifyModel(AbsModeler modeler);
 
 	public abstract String getParameterString() throws Exception;
+	
+	public abstract Vector<String> getPropertyString(double min, double max);
+	
+	public abstract int getSimpleParametersCount();
+	
+	public abstract double getFirstValue(double min);
+	
+	public abstract double getLastValue(double max);
 
 }

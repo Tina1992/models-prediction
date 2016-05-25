@@ -4,6 +4,7 @@ import java.util.Vector;
 
 import models.AbsModeler;
 import models.AbsWekaClassifier;
+import models.AbsWekaModeler;
 import models.SMOregClassifier;
 import parameters.AbsParameter;
 import parameters.AbsWekaParameter;
@@ -27,6 +28,11 @@ import weka.core.setupgenerator.MathParameter;
 public class WekaKernelOptimizer extends AbsWekaOptimizer {
 
 	private Vector<WekaKernelParameter> kernels = new Vector<WekaKernelParameter>();
+	
+	public WekaKernelOptimizer(double min, double max){
+		minValue=min;
+		maxValue=max;
+	}
 
 	public void setKernelOptions() {
 		NormalizedPolyKernel npk = new NormalizedPolyKernel(); // exponent (-E)
@@ -40,12 +46,14 @@ public class WekaKernelOptimizer extends AbsWekaOptimizer {
 		WekaKernelParameter rbfkparam = new WekaKernelParameter(rbfk);
 
 		Vector<AbsWekaParameter> exponents = new Vector<AbsWekaParameter>();
-		exponents.add(new WekaSimpleParameter('E', 1, "exponent"));
+		WekaSimpleParameter exp=new WekaSimpleParameter('E', 2.0, "exponent");
+		exp.setMinValor(2);
+		exponents.add(exp);
 		Vector<AbsWekaParameter> pukparams = new Vector<AbsWekaParameter>(); // PUK
-		pukparams.add(new WekaSimpleParameter('O', 1, "omega"));
-		pukparams.add(new WekaSimpleParameter('S', 1, "sigma"));
+		pukparams.add(new WekaSimpleParameter('O', 1.0, "omega"));
+		pukparams.add(new WekaSimpleParameter('S', 1.0, "sigma"));
 		Vector<AbsWekaParameter> rbfkparams = new Vector<AbsWekaParameter>();
-		rbfkparams.add(new WekaSimpleParameter('G', 1, "gamma"));
+		rbfkparams.add(new WekaSimpleParameter('G', 1.0, "gamma"));
 
 		npkparam.setKernelOptions(exponents);
 		pkparam.setKernelOptions(exponents);
@@ -62,48 +70,32 @@ public class WekaKernelOptimizer extends AbsWekaOptimizer {
 	private AbstractClassifier[] bestClassifiers(AbsModeler modeler, Instances dataset) throws Exception {
 		MultiSearch ms = new MultiSearch();
 		SMOreg smoreg = new SMOreg();
-
 		ms.setEvaluation(new SelectedTag(GridSearch.EVALUATION_CC, GridSearch.TAGS_EVALUATION));
-
+		
 		setKernelOptions();
 
-		AbstractParameter[] lpparam = new AbstractParameter[modeler.getParameters().size() - 1];
-		int index = 0;
 		AbstractClassifier[] cls = new AbstractClassifier[kernels.size()];
-		for (AbsParameter param : modeler.getParameters()) {
-			if (!param.getClass().getName().contains("Kernel")) {
-				lpparam[index] = new MathParameter();
-				lpparam[index].setOptions(
-						Utils.splitOptions("-property " + ((AbsWekaParameter) param).getParameterString().charAt(1)
-								+ " -min 0.0 -max 5.0 -step 1.0 -base 10.0 -expression I"));
-				index++;
-			}
-		}
-
 		int kindex = 0;
 		for (WekaKernelParameter k : kernels) {
-			AbstractParameter[] kparam = new AbstractParameter[k.getKernelParams().size()];
+			modeler.addParameter(k);
+			AbstractParameter[] params = new AbstractParameter[((AbsWekaModeler) modeler).getSimpleParamsCount()];
 			int i = 0;
-			for (AbsParameter kernelparam : k.getKernelParams()) {
-				AbstractParameter aux = new MathParameter();
-				aux.setOptions(Utils.splitOptions("-property kernel." + ((AbsWekaParameter) kernelparam).getName()
-						+ " -min 2.0 -max 5.0 -step 1.0 -base 10.0 -expression I"));
-				kparam[i] = aux;
-				i++;
+			for (AbsParameter p : modeler.getParameters()) {
+				double max=((AbsWekaParameter)p).getLastValue(maxValue);
+				double min=((AbsWekaParameter)p).getFirstValue(minValue);
+				for (String op : ((AbsWekaParameter) p).getPropertyString(min, max)) {
+					AbstractParameter aux = new MathParameter();
+					aux.setOptions(Utils.splitOptions(op));
+					params[i] = aux;
+					i++;
+				}
 			}
-			AbstractParameter[] finalParameters = new AbstractParameter[lpparam.length + kparam.length];
-			System.arraycopy(lpparam, 0, finalParameters, 0, lpparam.length);
-			System.arraycopy(kparam, 0, finalParameters, lpparam.length, kparam.length);
-
-			ms.setSearchParameters(finalParameters);
-
+			ms.setSearchParameters(params);
 			smoreg.setKernel(k.getKernel());
 			ms.setClassifier(smoreg);
-
 			ms.buildClassifier(dataset);
 			cls[kindex] = (AbstractClassifier) ms.getBestClassifier();
 			kindex++;
-
 		}
 		return cls;
 	}

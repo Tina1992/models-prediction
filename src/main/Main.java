@@ -13,7 +13,6 @@ import models.SimpleLinearRegClassifier;
 
 public class Main {
 	
-	@SuppressWarnings("unused")
 	public static void main(String[] args) throws IOException{
 		Vector<AbsModeler> models=new Vector<AbsModeler>();
 		

@@ -6,6 +6,7 @@ import java.util.Vector;
 import models.AbsModeler;
 import models.AbsWekaClusterer;
 import parameters.AbsParameter;
+import parameters.AbsWekaParameter;
 import parameters.WekaSimpleParameter;
 import weka.clusterers.SimpleKMeans;
 import weka.core.Instance;
@@ -15,7 +16,16 @@ import weka.core.OptionHandler;
 public class WekaClustererOptimizer extends AbsWekaOptimizer {
 
 	private static final long SEED = 10;
-	private static final int DEFAULT_CLUSTER_STEPS = 20;
+	private static final int DEFAULT_CLUSTER_STEPS = 30;
+	
+	public WekaClustererOptimizer(double min, double max){
+		minValue=min;
+		maxValue=max;
+	}
+	
+	public WekaClustererOptimizer(){
+		
+	}
 
 	@Override
 	protected void optimiceParams(AbsModeler modeler, Instances isTrainingSet){		
@@ -29,8 +39,12 @@ public class WekaClustererOptimizer extends AbsWekaOptimizer {
 			Instances randData = new Instances(isTrainingSet); 										
 			randData.randomize(rand); 
 			SimpleKMeans tester=new SimpleKMeans();
-			Double max=new Double(((WekaSimpleParameter)p).getValue());
-			for (int k = (int) ((WekaSimpleParameter)p).getMinValor(); k < max.intValue()+DEFAULT_CLUSTER_STEPS ; k++) {
+			Double min=((AbsWekaParameter)p).getFirstValue(minValue);
+			Double max=((AbsWekaParameter)p).getLastValue(maxValue);
+			if (((WekaSimpleParameter) p).getMaxValue()==-1){
+				max+=DEFAULT_CLUSTER_STEPS;
+			}
+			for (int k = min.intValue(); k < max.intValue(); k++) {
 				double error = 0;
 				double s = 0.0;
 				for (int n = 0; n < k; n++) {
