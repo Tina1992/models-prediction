@@ -2,9 +2,8 @@ package optimization;
 
 import java.util.Vector;
 
+import libraries.WekaLibrary;
 import models.AbsModeler;
-import models.AbsWekaClassifier;
-import models.AbsWekaModeler;
 import models.SMOregClassifier;
 import parameters.AbsParameter;
 import parameters.AbsWekaParameter;
@@ -78,7 +77,7 @@ public class WekaKernelOptimizer extends AbsWekaOptimizer {
 		int kindex = 0;
 		for (WekaKernelParameter k : kernels) {
 			modeler.addParameter(k);
-			AbstractParameter[] params = new AbstractParameter[((AbsWekaModeler) modeler).getSimpleParamsCount()];
+			AbstractParameter[] params = new AbstractParameter[WekaLibrary.getSimpleParamsCount(modeler)];
 			int i = 0;
 			for (AbsParameter p : modeler.getParameters()) {
 				double max=((AbsWekaParameter)p).getLastValue(maxValue);
@@ -109,8 +108,7 @@ public class WekaKernelOptimizer extends AbsWekaOptimizer {
 			ms.setClassifiers(optclassifiers);
 			ms.buildClassifier(isTrainingSet);
 			((SMOregClassifier) modeler).setClassifier(optclassifiers[ms.getBestClassifierIndex()]);
-			((AbsWekaClassifier) modeler)
-					.parseOptions(((SMOreg) (optclassifiers[ms.getBestClassifierIndex()])).getOptions());
+			WekaLibrary.parseOptions(((SMOreg) (optclassifiers[ms.getBestClassifierIndex()])).getOptions(), modeler);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

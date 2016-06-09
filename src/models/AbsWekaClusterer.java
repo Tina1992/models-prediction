@@ -1,23 +1,24 @@
 package models;
 
+import database.WekaDatabase;
 import weka.clusterers.Clusterer;
 import weka.core.Instances;
-import weka.core.OptionHandler;
 
-public abstract class AbsWekaClusterer extends AbsWekaModeler {
+public abstract class AbsWekaClusterer extends AbsClusterer {
+	
 	protected Clusterer clusterer_;
 	
 	//--Public methods
 	
 	public AbsWekaClusterer(Clusterer clusterer){
-		super((OptionHandler) clusterer);
+		database_=new WekaDatabase();
 		clusterer_=clusterer;
 	}
 
 	@Override
-	protected AbsModeler getModeler(Instances instances) {
+	protected AbsModeler getModel() {
 		// TODO Auto-generated method stub
-		getClusterer(instances);
+		getClusterer((Instances)database_.getDatabaseImplementation());
 		return this;
 	}
 

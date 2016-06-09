@@ -2,8 +2,10 @@ package parameters;
 
 import java.util.Vector;
 
+import libraries.WekaLibrary;
 import models.AbsModeler;
-import models.AbsWekaModeler;
+import models.AbsWekaClassifier;
+import models.AbsWekaClusterer;
 import weka.core.OptionHandler;
 
 public class WekaSimpleParameter extends AbsWekaParameter {
@@ -50,11 +52,14 @@ public class WekaSimpleParameter extends AbsWekaParameter {
 	@Override
 	public void modifyModel(AbsModeler modeler) {
 		try {
-			OptionHandler oh = ((AbsWekaModeler) modeler).getOptionHandler();
-			modifyObject(oh);
+			WekaLibrary.modifyObject(this, (OptionHandler) ((AbsWekaClassifier)modeler).getClassifier());
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			try {
+				WekaLibrary.modifyObject(this, (OptionHandler) ((AbsWekaClusterer)modeler).getClusterer());
+			} catch (Exception ex) {
+				// TODO Auto-generated catch block
+				ex.printStackTrace();
+			}
 		}
 	}
 	/**/

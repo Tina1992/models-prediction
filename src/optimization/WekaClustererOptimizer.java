@@ -31,7 +31,7 @@ public class WekaClustererOptimizer extends AbsWekaOptimizer {
 	protected void optimiceParams(AbsModeler modeler, Instances isTrainingSet){		
 		double maxAv = Double.MAX_VALUE;
 		int finalk=0;
-		OptionHandler oh=((AbsWekaClusterer)modeler).getOptionHandler();
+		OptionHandler oh=(OptionHandler) ((AbsWekaClusterer)modeler).getClusterer();
 		Vector<AbsParameter> parameters=modeler.getParameters();
 		((SimpleKMeans)oh).setPreserveInstancesOrder(true);
 		for (AbsParameter p:parameters){

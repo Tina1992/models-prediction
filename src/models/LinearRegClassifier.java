@@ -12,9 +12,12 @@ public class LinearRegClassifier extends AbsWekaClassifier {
 	 */
 
 	private static final double DEFAULT_RIDGE = 1;
+	private static final double MIN_VALUE=0;
+	private static final double MAX_VALUE=5;
+	
 	/**/
 	public LinearRegClassifier(int index) {
-		super(new LinearRegression(), new WekaClassifierOptimizer(0, 5), index);
+		super(new LinearRegression(), new WekaClassifierOptimizer(MIN_VALUE, MAX_VALUE), index);
 		addParameter(new WekaSimpleParameter('R', DEFAULT_RIDGE, "R"));	/*No tiene limites - Double*/
 	}
 

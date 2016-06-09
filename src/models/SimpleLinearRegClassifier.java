@@ -12,8 +12,12 @@ public class SimpleLinearRegClassifier extends AbsWekaClassifier {
 	 * Function on B (attributeIndex): A = Slope * B + Intercept 	A y B high correlation 
 	 */
 	/**/
+	
+	private static final double MIN_VALUE=0;
+	private static final double MAX_VALUE=5;
+	
 	public SimpleLinearRegClassifier(int index){
-		super(new SimpleLinearRegression(), new WekaClassifierOptimizer(0,5), index);
+		super(new SimpleLinearRegression(), new WekaClassifierOptimizer(MIN_VALUE,MAX_VALUE), index);
 	}
 	
 	@Override

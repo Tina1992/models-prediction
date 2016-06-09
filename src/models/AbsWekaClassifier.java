@@ -1,5 +1,7 @@
 package models;
 
+import database.WekaDatabase;
+import libraries.WekaLibrary;
 import optimization.AbsWekaOptimizer;
 import weka.attributeSelection.CfsSubsetEval;
 import weka.attributeSelection.ExhaustiveSearch;
@@ -7,28 +9,17 @@ import weka.classifiers.AbstractClassifier;
 import weka.classifiers.Classifier;
 import weka.classifiers.meta.AttributeSelectedClassifier;
 import weka.core.Instances;
+import weka.core.OptionHandler;
 
-public abstract class AbsWekaClassifier extends AbsWekaModeler{
+public abstract class AbsWekaClassifier extends AbsClassifier{
 	protected AbstractClassifier classifier;
 	protected AbsWekaOptimizer optimizer;
 	private int index;
 	
-	//--Private methods
-	private Classifier performAttSelect(Classifier base, Instances dataset) throws Exception{
-		AttributeSelectedClassifier asc = new AttributeSelectedClassifier();
-	    CfsSubsetEval evaluator = new CfsSubsetEval();
-	    ExhaustiveSearch search = new ExhaustiveSearch();
-	    asc.setClassifier(base);
-	    asc.setEvaluator(evaluator);
-	    asc.setSearch(search);
-	    asc.buildClassifier(dataset);
-	    return asc.getClassifier();
-	}
-	
 	//--Public methods
 	/**/
 	public AbsWekaClassifier(AbstractClassifier clas, AbsWekaOptimizer optimizer, int index){
-		super(clas);
+		database_=new WekaDatabase();
 		this.index=index;
 		classifier=clas;
 		this.optimizer=optimizer;
@@ -36,7 +27,7 @@ public abstract class AbsWekaClassifier extends AbsWekaModeler{
 
 	public void setClassifier(AbstractClassifier classifier){
 		this.classifier=classifier;
-		parseOptions(classifier.getOptions());
+		WekaLibrary.parseOptions(classifier.getOptions(), this);
 	}
 
 	public String toString(){
@@ -47,16 +38,38 @@ public abstract class AbsWekaClassifier extends AbsWekaModeler{
 		return classifier;
 	}
 
-	public AbsModeler getModeler(Instances dataset){
-		dataset.setClassIndex(index);
+	@Override
+	public AbsModeler getModel(){
+		setIndexAttribute(index);
+		selectBestAttributes();
 		optimizer.optimiceParams(this);
 		try {
-			classifier.buildClassifier(dataset);
+			classifier.buildClassifier(((Instances)database_.getDatabaseImplementation()));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return this;
+	}
+	
+	public void setIndexAttribute(int index){
+		((Instances)database_.getDatabaseImplementation()).setClassIndex(index);
+	}
+	
+	public void selectBestAttributes(){
+			AttributeSelectedClassifier asc = new AttributeSelectedClassifier();
+		    CfsSubsetEval evaluator = new CfsSubsetEval();
+		    ExhaustiveSearch search = new ExhaustiveSearch();
+		    asc.setClassifier(classifier);
+		    asc.setEvaluator(evaluator);
+		    asc.setSearch(search);
+		    try {
+				asc.buildClassifier(((Instances)database_.getDatabaseImplementation()));
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		    WekaLibrary.parseOptions(((OptionHandler)asc.getClassifier()).getOptions(), this);
 	}
 	
 	//--Abstract methods

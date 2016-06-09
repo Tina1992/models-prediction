@@ -1,8 +1,12 @@
 package models;
 
+import java.util.Vector;
+
+import individual.Individual;
 import optimization.WekaClustererOptimizer;
 import parameters.WekaSimpleParameter;
 import weka.clusterers.SimpleKMeans;
+import weka.core.Instance;
 import weka.core.Instances;
 
 public class SimpleKClusterer extends AbsWekaClusterer {
@@ -33,6 +37,24 @@ public class SimpleKClusterer extends AbsWekaClusterer {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public int getCluster(Individual individual) {
+		// TODO Auto-generated method stub
+		try {
+			return clusterer_.clusterInstance((Instance)individual.getIndividualRepresentation());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return -1;		//Error
+	}
+
+	@Override
+	public Vector<Individual> getClusterMember(int cluster) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

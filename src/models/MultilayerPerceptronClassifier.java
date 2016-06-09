@@ -18,10 +18,13 @@ public class MultilayerPerceptronClassifier extends AbsWekaClassifier {
 	private static final double DEFAULT_TT = 200; // No se pueden optimizar
 													// parametros integers
 	private static final double DEFAULT_VS = 0;
+	
+	private static final double MIN_VALUE=2;
+	private static final double MAX_VALUE=5;
 
 	/**/
 	public MultilayerPerceptronClassifier(int index) {
-		super(new MultilayerPerceptron(), new WekaClassifierOptimizer(2,5), index);
+		super(new MultilayerPerceptron(), new WekaClassifierOptimizer(MIN_VALUE,MAX_VALUE), index);
 		WekaSimpleParameter l = new WekaSimpleParameter('L', DEFAULT_LR, "L"/* "Learning Rate" */);
 		l.setMaxValue(1);
 		addParameter(l); /* 0-1 Double */

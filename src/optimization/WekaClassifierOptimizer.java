@@ -2,12 +2,11 @@ package optimization;
 
 import java.util.Vector;
 
+import libraries.WekaLibrary;
 import models.AbsModeler;
 import models.AbsWekaClassifier;
-import models.AbsWekaModeler;
 import parameters.AbsParameter;
 import parameters.WekaSimpleParameter;
-import weka.classifiers.AbstractClassifier;
 import weka.classifiers.meta.CVParameterSelection;
 import weka.core.Instances;
 
@@ -46,9 +45,9 @@ public class WekaClassifierOptimizer extends AbsWekaOptimizer {
 				cvps.addCVParameter(val);
 			}
 			cvps.setNumFolds(FOLDS);
-			cvps.setClassifier((AbstractClassifier) ((AbsWekaModeler) modeler).getOptionHandler());
+			cvps.setClassifier(((AbsWekaClassifier) modeler).getClassifier());
 			cvps.buildClassifier(isTrainingSet);
-			((AbsWekaClassifier) modeler).parseOptions(cvps.getBestClassifierOptions());
+			WekaLibrary.parseOptions(cvps.getBestClassifierOptions(), modeler);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

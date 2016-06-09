@@ -1,13 +1,14 @@
 package models;
 
-import java.io.File;
 import java.util.Vector;
 
+import database.Database;
 import parameters.AbsParameter;
 
 public abstract class AbsModeler {
 	
 	protected Vector<AbsParameter> modelParameters_=new Vector<AbsParameter>();
+	protected Database database_;
 	
 	//--Public methods
 	/**/
@@ -36,10 +37,19 @@ public abstract class AbsModeler {
 		return modelParameters_;
 	}
 	
+
+	public AbsModeler calculateModeler(Database database){
+		database_=database;
+		return getModel();
+	}
+	
+	public Database getDatabase(){
+		return database_;
+	}
+	
 	//--Abstract methods
 	
-	public abstract AbsModeler getModel(File database);
+	protected abstract AbsModeler getModel();
 	public abstract String getName();
 	public abstract String toString();
-
 }
